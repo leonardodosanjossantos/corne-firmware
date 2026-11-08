@@ -1,0 +1,42 @@
+name: Compilar firmware do Corne
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: ghcr.io/qmk/qmk_cli
+    steps:
+      - name: Baixar este repositório
+        uses: actions/checkout@v4
+        with:
+          path: config
+
+      - name: Baixar o vial-qmk
+        run: |
+          git config --global --add safe.directory '*'
+          git clone --depth 1 https://github.com/vial-kb/vial-qmk.git
+
+      - name: Baixar submódulos do vial-qmk
+        working-directory: vial-qmk
+        run: make git-submodule
+
+      - name: Gerar keymap.c a partir do corne_1.vil
+        run: python3 config/scripts/gerar_keymap.py config/corne_1.vil config/scripts/template.c > config/keymap/keymap.c
+
+      - name: Copiar a keymap para o vial-qmk
+        run: cp -r config/keymap vial-qmk/keyboards/crkbd/keymaps/leonardo
+
+      - name: Compilar
+        working-directory: vial-qmk
+        run: make crkbd/rev4_1/standard:leonardo
+
+      - name: Disponibilizar o .uf2 para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-corne-leonardo
+          path: |
+            vial-qmk/*.uf2
+            config/keymap/keymap.c
