@@ -6,3 +6,7 @@
 #define VIAL_UNLOCK_COMBO_ROWS {0, 0}
 #define VIAL_UNLOCK_COMBO_COLS {0, 1}
 #define RP2040_BOOTLOADER_DOUBLE_TAP_RESET
+
+// Tap-hold (teclas LT): tempo padrão de 200 ms em vez de 600 ms
+// (vale quando a memória do teclado é resetada; o Vial pode mudar depois)
+#define TAPPING_TERM 200
